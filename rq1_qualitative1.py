@@ -1,5 +1,5 @@
 #This code uses multiple threads to process the notebooks in parallel.
-#It uses the NVIDIA OR GROQ API to evaluate the relevance of the domain classifications.
+#It uses the GROQ API to evaluate the relevance of the domain classifications.
 #It saves the results to a CSV file.
 import pandas as pd
 import os
@@ -41,11 +41,14 @@ except ImportError:
 
 load_dotenv()
 
-openai_api_key = os.getenv("NVIDIA_API_KEY") #OR GROQ_API_KEY
-if not openai_api_key:
-    raise ValueError("NVIDIA_API_KEY environment variable not set. Please add it to your .env file.")
+groq_api_key = os.getenv("GROQ_API_KEY")
+if not groq_api_key:
+    raise ValueError("GROQ_API_KEY environment variable not set. Please add it to your .env file.")
 
-client = OpenAI(api_key=openai_api_key)
+client = OpenAI(
+    api_key=groq_api_key,
+    base_url="https://api.groq.com/openai/v1"
+)
 
 
 MAX_WORKERS = 5  

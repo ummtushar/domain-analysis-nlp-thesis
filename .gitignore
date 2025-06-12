@@ -1,0 +1,10 @@
+data/*
+nb_contents/*
+salient_terms/*
+word2vec_embeddings/*
+bert_embeddings/*
+glove_embeddings/*
+.env
+
+*.png
+*.csv
