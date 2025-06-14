@@ -87,7 +87,7 @@ def check_multicollinearity(X, feature_names, vif_threshold=10.0, corr_threshold
     processed_pairs = set()
     
     for feat1, feat2, corr in high_corr_pairs:
-        pair_key = tuple(sorted([feat1, feat2]))
+        pair_key = tuple([feat1, feat2]) # you can sort to drop the highest 
         if pair_key in processed_pairs:
             continue
         
@@ -99,9 +99,9 @@ def check_multicollinearity(X, feature_names, vif_threshold=10.0, corr_threshold
         if feat1 in to_drop or feat2 in to_drop:
             continue
         
-        if feat1.startswith(('tensor_lib_', 'op_')) and not feat2.startswith(('tensor_lib_', 'op_')):
+        if feat1.startswith(('tensor_lib_', 'op_', 'cyclomatic_complexity')) and not feat2.startswith(('tensor_lib_', 'op_', 'cyclomatic_complexity')):
             to_drop.add(feat1)
-        elif feat2.startswith(('tensor_lib_', 'op_')) and not feat1.startswith(('tensor_lib_', 'op_')):
+        elif feat2.startswith(('tensor_lib_', 'op_', 'cyclomatic_complexity')) and not feat1.startswith(('tensor_lib_', 'op_', 'cyclomatic_complexity')):
             to_drop.add(feat2)
         else:
             to_drop.add(feat2)
@@ -166,67 +166,61 @@ def calculate_feature_significance(X, y, target_class, feature_names):
         random_state=42
     )
     
-    try:
-        model.fit(X, binary_y)
-        
-        coefs = np.concatenate([model.intercept_, model.coef_[0]])
-        
-        n_permutations = 1000
-        n_samples = X.shape[0]
-        n_features = X.shape[1] + 1  # +1 for intercept
-        
-        permutation_coefs = np.zeros((n_permutations, n_features))
-        
-        for i in range(n_permutations):
-            y_perm = shuffle(binary_y, random_state=i)
-            
-            try:
-                model_perm = LogisticRegression(
-                    # penalty='l1', 
-                    # C=1.0,
-                    # solver='liblinear',
-                    # fit_intercept=True,
-                    max_iter=2000,
-                    random_state=42
-                )
-                model_perm.fit(X, y_perm)
-                
-                permutation_coefs[i, 0] = model_perm.intercept_[0]
-                permutation_coefs[i, 1:] = model_perm.coef_[0]
-            except:
-                permutation_coefs[i, :] = 0
-                
-        std_errors = np.std(permutation_coefs, axis=0)
-        
-        p_values = np.zeros(n_features)
-        for j in range(n_features):
-            if coefs[j] >= 0:
-                p_values[j] = np.mean(permutation_coefs[:, j] >= coefs[j])
-            else:
-                p_values[j] = np.mean(permutation_coefs[:, j] <= coefs[j])
-        
-        lower_ci = coefs - 1.96 * std_errors
-        upper_ci = coefs + 1.96 * std_errors
-        
-        feature_names_with_intercept = ['intercept'] + feature_names
-        
-        coef_df = pd.DataFrame({
-            'Feature': feature_names_with_intercept,
-            'Coefficient': coefs,
-            'Std.Error': std_errors,
-            'Lower_CI': lower_ci,
-            'Upper_CI': upper_ci,
-            'P_Value': p_values
-        })
-        
-        coef_df['IsSignificant'] = coef_df['P_Value'] < 0.05
-        
-        return coef_df
+    model.fit(X, binary_y)
     
-    except Exception as e:
-        print(f"Error in model fitting: {e}")
-        columns = ['Feature', 'Coefficient', 'Std.Error', 'Lower_CI', 'Upper_CI', 'P_Value', 'IsSignificant']
-        return pd.DataFrame(columns=columns)
+    coefs = np.concatenate([model.intercept_, model.coef_[0]])
+    
+    n_permutations = 1000
+    n_samples = X.shape[0]
+    n_features = X.shape[1] + 1  # +1 for intercept
+    
+    permutation_coefs = np.zeros((n_permutations, n_features))
+    
+    for i in range(n_permutations):
+        y_perm = shuffle(binary_y, random_state=i)
+        
+        try:
+            model_perm = LogisticRegression(
+                # penalty='l1', 
+                # C=1.0,
+                # solver='liblinear',
+                # fit_intercept=True,
+                max_iter=2000,
+                random_state=42
+            )
+            model_perm.fit(X, y_perm)
+            
+            permutation_coefs[i, 0] = model_perm.intercept_[0]
+            permutation_coefs[i, 1:] = model_perm.coef_[0]
+        except:
+            permutation_coefs[i, :] = 0
+            
+    std_errors = np.std(permutation_coefs, axis=0)
+    
+    p_values = np.zeros(n_features)
+    for j in range(n_features):
+        if coefs[j] >= 0:
+            p_values[j] = np.mean(permutation_coefs[:, j] >= coefs[j])
+        else:
+            p_values[j] = np.mean(permutation_coefs[:, j] <= coefs[j])
+    
+    lower_ci = coefs - 1.96 * std_errors
+    upper_ci = coefs + 1.96 * std_errors
+    
+    feature_names_with_intercept = ['intercept'] + feature_names
+    
+    coef_df = pd.DataFrame({
+        'Feature': feature_names_with_intercept,
+        'Coefficient': coefs,
+        'Std.Error': std_errors,
+        'Lower_CI': lower_ci,
+        'Upper_CI': upper_ci,
+        'P_Value': p_values
+    })
+    
+    coef_df['IsSignificant'] = coef_df['P_Value'] < 0.05
+    
+    return coef_df
 
 # def compute_absolute_importance(coef_df):
 #     coef_df['AbsCoefficient'] = coef_df['Coefficient'].abs()

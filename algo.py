@@ -247,7 +247,7 @@ def extract_tensor_operations(code_content):
     tensor_op_usage = {f"op_{op}": 0 for op in tensor_ops}
     num_tensor_ops = 0
 
-    try:
+    try: # taken from https://docs.python.org/3/library/ast.html
         # Pre-filter lines that are obviously not standard Python (e.g., IPython magics)
         lines = code_content.splitlines()
         python_lines = [line for line in lines if not (line.strip().startswith('%') or line.strip().startswith('!'))]
@@ -382,34 +382,28 @@ def calculate_cyclomatic_complexity(code_content):
     - P = number of connected components (usually 1 for a single function)
     
     Simplified as: number of decision points + 1
-    """
-    if sys.version_info >= (3, 10):
-        return None
-        #WRITE SMTH HERE
+    """# Count decision points (predicates)
+    decision_points = len(re.findall(r'\bif\b|\bfor\b|\bwhile\b|\band\b|\bor\b|\belif\b|\bcatch\b|\bexcept\b|\bcase\b|\bwith\b', code_content))
     
-    else:
-        # Count decision points (predicates)
-        decision_points = len(re.findall(r'\bif\b|\bfor\b|\bwhile\b|\band\b|\bor\b|\belif\b|\bcatch\b|\bexcept\b|\bcase\b|\bwith\b', code_content))
-        
-        # Count functions and classes (representing separate components)
-        function_defs = re.findall(r'def\s+\w+\s*\(', code_content)
-        class_defs = re.findall(r'class\s+\w+\s*[(:)]', code_content)
-        
-        # Number of components (P) - at minimum 1, plus any additional disconnected functions/classes
-        components = max(1, len(function_defs) + len(class_defs))
-        
-        # Estimate number of nodes (N) - roughly 1 per line plus decision points
-        lines = [line for line in code_content.splitlines() if line.strip()]
-        nodes = len(lines)
-        
-        # Estimate number of edges (E) - roughly nodes + decision points (each decision adds an extra edge)
-        edges = nodes + decision_points
-        
-        # Apply the formula: E - N + 2P
-        complexity = edges - nodes + (2 * components)
-        
-        # Ensure complexity is at least 1
-        return max(1, complexity)
+    # Count functions and classes (representing separate components)
+    function_defs = re.findall(r'def\s+\w+\s*\(', code_content)
+    class_defs = re.findall(r'class\s+\w+\s*[(:)]', code_content)
+    
+    # Number of components (P) - at minimum 1, plus any additional disconnected functions/classes
+    components = max(1, len(function_defs) + len(class_defs))
+    
+    # Estimate number of nodes (N) - roughly 1 per line plus decision points
+    lines = [line for line in code_content.splitlines() if line.strip()]
+    nodes = len(lines)
+    
+    # Estimate number of edges (E) - roughly nodes + decision points (each decision adds an extra edge)
+    edges = nodes + decision_points
+    
+    # Apply the formula: E - N + 2P
+    complexity = edges - nodes + (2 * components)
+    
+    # Ensure complexity is at least 1
+    return max(1, complexity)
 
 def process_notebook_contents():
     """Process all notebook contents in the nb_contents directory"""
@@ -463,18 +457,18 @@ def process_notebook_contents():
             # Default values if code file not found
             metrics['num_lines'] = 0
             
-            # Default values for libraries
+            # Default values for libraries - some libraries I saw manually
             for lib in ['numpy', 'pandas', 'matplotlib', 'seaborn', 'sklearn', 'tensorflow',
                         'keras', 'torch', 'pytorch', 'scipy', 'nltk', 'cv2', 'xgboost',
                         'lightgbm', 'transformers', 'huggingface', 'spacy', 'plotly',
                         'gensim', 'statsmodels', 'tqdm']:
                 metrics[f"lib_{lib}"] = 0
             
-            # Default values for tensor libraries 
+            # Default values for tensor libraries  - https://www.jmlr.org/papers/volume20/18-277/18-277.pdf 
             for lib in ['numpy', 'tensorflow', 'torch', 'jax', 'mxnet', 'theano', 'cupy']:
                 metrics[f"tensor_lib_{lib}"] = 0
             
-            # Default values for tensor operations
+            # Default values for tensor operations - https://www.tensorflow.org/tutorials/customization/basics
             for op in ['dot', 'matmul', 'multiply', 'add', 'subtract', 'divide',
                       'transpose', 'reshape', 'concatenate', 'stack', 'split',
                       'slice', 'gather', 'scatter', 'einsum', 'conv', 'pool']:

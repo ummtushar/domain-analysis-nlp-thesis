@@ -51,7 +51,6 @@ def load_salient_term_embeddings(embedding_dir):
                     file_part = 'salient_terms'
                     term_type = parts[2]  # tfidf, bow, or lda
                 else:
-                    print(f"Warning: Unexpected salient_terms filename format: {file_name}")
                     continue
             elif file_name.startswith('narrative_md_salient_'):
                 parts = file_name.split('_')
@@ -59,7 +58,6 @@ def load_salient_term_embeddings(embedding_dir):
                     file_part = 'narrative_md'
                     term_type = parts[3]  # tfidf, bow, or lda
                 else:
-                    print(f"Warning: Unexpected narrative_md filename format: {file_name}")
                     continue
             elif file_name.startswith('code_salient_') or file_name.startswith('comment_salient_'):
                 parts = file_name.split('_')
@@ -67,11 +65,7 @@ def load_salient_term_embeddings(embedding_dir):
                     file_part = parts[0]  # code or comment
                     term_type = parts[2]  # tfidf, bow, or lda
                 else:
-                    print(f"Warning: Unexpected code/comment filename format: {file_name}")
                     continue
-            else:
-                print(f"Warning: Unrecognized filename pattern: {file_name}")
-                continue
             
             if f"_{embed_type}" in term_type:
                 term_type = term_type.split(f"_{embed_type}")[0]
