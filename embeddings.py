@@ -39,21 +39,18 @@ def extract_terms_from_file(file_path):
     }
     
     term_dict = defaultdict(list)
+   
+    with open(file_path, 'r', encoding='utf-8') as f:
+        content = f.read()
     
-    try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            content = f.read()
-        
-        for term_type, pattern in term_patterns.items():
-            matches = re.search(pattern, content, re.DOTALL)
-            if matches:
-                terms_section = matches.group(1).strip()
-                if "N/A" not in terms_section:
-                    # Extract terms from lines like "- term: score"
-                    term_lines = re.findall(r'- (.*?):', terms_section)
-                    term_dict[term_type] = term_lines
-    except Exception as e:
-        print(f"Error extracting terms from {file_path}: {e}")
+    for term_type, pattern in term_patterns.items():
+        matches = re.search(pattern, content, re.DOTALL)
+        if matches:
+            terms_section = matches.group(1).strip()
+            if "N/A" not in terms_section:
+                # Extract terms from lines like "- term: score"
+                term_lines = re.findall(r'- (.*?):', terms_section)
+                term_dict[term_type] = term_lines
     
     return term_dict
 
@@ -67,11 +64,11 @@ class EmbeddingGenerator:
         self.model = None
         self.loaded = False
     
-    def load_model(self):
-        raise NotImplementedError("Subclasses must implement load_model")
+    # def load_model(self):
+    #     raise NotImplementedError("Subclasses must implement load_model")
     
-    def get_embedding(self, term):
-        raise NotImplementedError("Subclasses must implement get_embedding")
+    # def get_embedding(self, term):
+    #     raise NotImplementedError("Subclasses must implement get_embedding")
     
     def generate_embeddings(self, terms_list):
         if not self.loaded:
