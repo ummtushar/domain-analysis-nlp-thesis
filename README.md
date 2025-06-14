@@ -3,8 +3,8 @@
 </div>
 <div align="center">
   <a href="https://pypi.python.org/pypi/davia"><img src="https://img.shields.io/pypi/v/davia.svg" alt="PyPI"></a>
-  <a href="https://github.com/davialabs/davia"><img src="https://img.shields.io/pypi/pyversions/davia.svg" alt="versions"></a>
-  <a href="https://github.com/davialabs/davia/blob/main/LICENSE"><img src="https://img.shields.io/github/license/davialabs/davia.svg?v" alt="license"></a>
+  <a href="https://github.com/ummtushar/domain-analysis-nlp-thesis"><img src="https://img.shields.io/badge/python-3.11-blue.svg" alt="Python 3.11"></a>
+  <a href="https://github.com/ummtushar/domain-analysis-nlp-thesis/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-Apache%202.0-blue.svg" alt="license"></a>
 </div>
 
 This project analyzes Jupyter Notebooks to classify them into specific domains using Natural Language Processing techniques. It extracts salient terms from notebook content (code, comments, markdown) and uses various embedding methods to classify notebooks into relevant domains.
