@@ -87,7 +87,7 @@ def check_multicollinearity(X, feature_names, vif_threshold=10.0, corr_threshold
     processed_pairs = set()
     
     for feat1, feat2, corr in high_corr_pairs:
-        pair_key = tuple([feat1, feat2]) # you can sort to drop the highest 
+        pair_key = tuple([feat1, feat2]) # you can sort as well
         if pair_key in processed_pairs:
             continue
         
