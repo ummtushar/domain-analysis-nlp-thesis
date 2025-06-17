@@ -99,9 +99,9 @@ def check_multicollinearity(X, feature_names, vif_threshold=10.0, corr_threshold
         if feat1 in to_drop or feat2 in to_drop:
             continue
         
-        if feat1.startswith(('tensor_lib_', 'op_', 'cyclomatic_complexity')) and not feat2.startswith(('tensor_lib_', 'op_', 'cyclomatic_complexity')):
+        if feat1.startswith(('tensor_lib_', 'op_')) and not feat2.startswith(('tensor_lib_', 'op_', 'cyclomatic_complexity')):
             to_drop.add(feat1)
-        elif feat2.startswith(('tensor_lib_', 'op_', 'cyclomatic_complexity')) and not feat1.startswith(('tensor_lib_', 'op_', 'cyclomatic_complexity')):
+        elif feat2.startswith(('tensor_lib_', 'op_')) and not feat1.startswith(('tensor_lib_', 'op_', 'cyclomatic_complexity')):
             to_drop.add(feat2)
         else:
             to_drop.add(feat2)
