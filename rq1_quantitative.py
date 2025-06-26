@@ -111,7 +111,7 @@ def extract_top_domains_from_csv(csv_path):
 def calculate_precision_at_k(predicted_domains, ground_truth_tags, k=3):
    
 
-    if not ground_truth_tags or len(ground_truth_tags) == 0 or len(ground_truth_tags)!=k:
+    if not ground_truth_tags or len(ground_truth_tags) == 0 or len(ground_truth_tags)<k:
         # If no ground truth tags, we cannot calculate P@k
         
         return None
@@ -216,7 +216,7 @@ def main():
         for part, term_types in parts.items():
             for term_type, embedding_types in term_types.items():
                 for embedding_type, domains in embedding_types.items():
-                    p_at_k = calculate_precision_at_k(domains, ground_truth, k=10)
+                    p_at_k = calculate_precision_at_k(domains, ground_truth, k=3)
 
                     if p_at_k is None: count += 1
                     
@@ -258,3 +258,5 @@ def main():
     print(f"\nResults written to {output_path}")
 
     print(count)
+
+main()
